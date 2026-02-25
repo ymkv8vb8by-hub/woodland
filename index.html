@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Woodland</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --black: #050403;
+      --deep: #0a0806;
+      --mid: #111009;
+      --line: rgba(255,255,255,0.07);
+      --dim: rgba(255,255,255,0.25);
+      --text: rgba(255,255,255,0.85);
+      --accent: #e8c87a;
+      --accent-dim: rgba(232,200,122,0.4);
+    }
+
+    html, body { height: 100%; }
+
+    html { cursor: none !important; }
+
+    body {
+      background: var(--black);
+      color: var(--text);
+      font-family: 'DM Mono', monospace;
+      font-weight: 300;
+      cursor: none !important;
+      overflow-x: hidden;
+    }
+
+    * { cursor: none !important; }
+
+    /* Grain */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 9998;
+      mix-blend-mode: overlay;
+    }
+
+    /* Cursor */
+    .cursor {
+      position: fixed;
+      width: 6px; height: 6px;
+      background: var(--accent);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 10000;
+      transform: translate(-50%, -50%);
+      transition: width 0.2s, height 0.2s;
+    }
+    .cursor-ring {
+      position: fixed;
+      width: 32px; height: 32px;
+      border: 1px solid var(--accent-dim);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-50%, -50%);
+    }
+    body.hovering .cursor { width: 10px; height: 10px; }
+    body.hovering .cursor-ring { width: 48px; height: 48px; border-color: rgba(232,200,122,0.6); }
+
+    /* ── HEADER ── */
+    header {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 500;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.6rem 3rem;
+      border-bottom: 1px solid var(--line);
+      background: rgba(5,4,3,0.92);
+      backdrop-filter: blur(12px);
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+    }
+
+    .logo svg circle { stroke: rgba(232,200,122,0.6); fill: none; stroke-width: 0.8; }
+    .logo svg text { fill: rgba(232,200,122,0.8); font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 300; }
+
+    .logo-name {
+      font-family: 'DM Mono', monospace;
+      font-weight: 300;
+      font-size: 0.72rem;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      color: var(--text);
+    }
+
+    nav { display: flex; gap: 2rem; }
+    nav a {
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--dim);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    nav a:hover { color: var(--accent); }
+
+    /* ── HERO ── */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 0 3rem 4rem;
+      position: relative;
+      border-bottom: 1px solid var(--line);
+    }
+
+    /* Scanline effect */
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0,0,0,0.03) 2px,
+        rgba(0,0,0,0.03) 4px
+      );
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* Vignette */
+    .hero::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at center, transparent 40%, rgba(5,4,3,0.8) 100%);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .hero-counter {
+      font-size: 0.6rem;
+      letter-spacing: 0.25em;
+      color: var(--accent-dim);
+      margin-bottom: 1.5rem;
+      position: relative;
+      z-index: 2;
+    }
+
+    .hero h1 {
+      font-family: 'DM Serif Display', serif;
+      font-weight: 400;
+      font-size: clamp(5rem, 11vw, 13rem);
+      line-height: 0.85;
+      letter-spacing: -0.03em;
+      color: var(--text);
+      position: relative;
+      z-index: 2;
+    }
+
+    .hero h1 em {
+      font-style: italic;
+      color: var(--accent);
+    }
+
+    .hero-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-top: 3rem;
+      position: relative;
+      z-index: 2;
+    }
+
+    .hero-meta p {
+      font-size: 0.65rem;
+      letter-spacing: 0.15em;
+      color: var(--dim);
+      max-width: 280px;
+      line-height: 1.8;
+    }
+
+    .scroll-indicator {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .scroll-indicator span {
+      font-size: 0.55rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--accent-dim);
+      writing-mode: vertical-rl;
+    }
+
+    .scroll-line {
+      width: 1px;
+      height: 60px;
+      background: linear-gradient(to bottom, var(--accent-dim), transparent);
+      animation: scrollDrop 2s ease-in-out infinite;
+    }
+
+    @keyframes scrollDrop {
+      0% { transform: scaleY(0); transform-origin: top; }
+      50% { transform: scaleY(1); transform-origin: top; }
+      51% { transform: scaleY(1); transform-origin: bottom; }
+      100% { transform: scaleY(0); transform-origin: bottom; }
+    }
+
+    /* ── WORK SECTION ── */
+    .work-section { padding: 0 3rem 6rem; }
+
+    .work-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 2rem 0;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 0;
+    }
+
+    .work-title {
+      font-size: 0.6rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--dim);
+    }
+
+    /* Tabs */
+    .tabs { display: flex; }
+
+    .tab-btn {
+      background: none;
+      border: none;
+      border-left: 1px solid var(--line);
+      cursor: none;
+      font-family: 'DM Mono', monospace;
+      font-weight: 300;
+      font-size: 0.6rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--dim);
+      padding: 0.4rem 1.2rem;
+      transition: color 0.2s, background 0.2s;
+    }
+
+    .tab-btn:first-child { border-left: none; }
+    .tab-btn.active { color: var(--black); background: var(--accent); }
+    .tab-btn:not(.active):hover { color: var(--accent); }
+
+    /* ── GRID ── */
+    .video-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1px;
+      margin-top: 1px;
+      background: var(--line);
+    }
+
+    .video-card {
+      display: none;
+      position: relative;
+      overflow: hidden;
+      background: var(--deep);
+      cursor: none;
+    }
+
+    .video-card.visible { display: block; }
+
+    /* Masonry for all tab */
+    .video-grid.all-view {
+      display: block;
+      columns: 4;
+      column-gap: 1px;
+      background: none;
+    }
+    .video-grid.all-view .video-card {
+      break-inside: avoid;
+      margin-bottom: 1px;
+      display: none;
+    }
+    .video-grid.all-view .video-card.visible { display: block; }
+
+    /* Masonry for feed */
+    .video-grid.feed-view {
+      display: block;
+      columns: 4;
+      column-gap: 1px;
+      background: none;
+    }
+    .video-grid.feed-view .video-card {
+      break-inside: avoid;
+      margin-bottom: 1px;
+      display: none;
+    }
+    .video-grid.feed-view .video-card.visible { display: block; }
+
+    /* 2-col for identity */
+    .video-grid.identity-view {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    /* 2-col for documentary */
+    .video-grid.documentary-view {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .video-thumb {
+      position: relative;
+      padding-top: 56.25%;
+      overflow: hidden;
+    }
+
+    .thumb-bg {
+      position: absolute;
+      inset: 0;
+      background: var(--mid);
+      transition: transform 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+
+    .video-card:hover .thumb-bg { transform: scale(1.06); }
+
+    .thumb-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(5,4,3,0.8) 0%, transparent 55%);
+      transition: opacity 0.4s;
+      z-index: 1;
+    }
+
+    .video-card:hover .thumb-overlay { opacity: 0.5; }
+
+    /* Horizontal scan line on hover */
+    .thumb-scan {
+      position: absolute;
+      left: 0; right: 0;
+      height: 1px;
+      background: var(--accent-dim);
+      top: 50%;
+      z-index: 2;
+      transform: scaleX(0);
+      transition: transform 0.4s ease;
+    }
+
+    .video-card:hover .thumb-scan { transform: scaleX(1); }
+
+    .card-inner {
+      position: absolute;
+      inset: 0;
+      z-index: 3;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 1rem;
+    }
+
+    .card-tag {
+      font-size: 0.52rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.3rem;
+      opacity: 0;
+      transform: translateY(4px);
+      transition: opacity 0.3s, transform 0.3s;
+    }
+
+    .card-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(0.9rem, 1.4vw, 1.3rem);
+      font-weight: 400;
+      color: var(--text);
+      line-height: 1.15;
+      transform: translateY(4px);
+      transition: transform 0.3s;
+    }
+
+    .video-card:hover .card-tag { opacity: 1; transform: translateY(0); }
+    .video-card:hover .card-title { transform: translateY(0); }
+
+    .play-btn {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0.8);
+      width: 48px; height: 48px;
+      border: 1px solid rgba(232,200,122,0.3);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 4;
+      opacity: 0;
+      transition: opacity 0.3s, transform 0.3s;
+      background: rgba(5,4,3,0.4);
+      backdrop-filter: blur(4px);
+    }
+
+    .video-card:hover .play-btn {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1);
+    }
+
+    /* Card number */
+    .card-num {
+      position: absolute;
+      top: 0.7rem;
+      right: 0.8rem;
+      font-size: 0.52rem;
+      letter-spacing: 0.15em;
+      color: rgba(255,255,255,0.15);
+      z-index: 3;
+    }
+
+    /* ── MODAL ── */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(3,2,1,0.97);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s;
+    }
+
+    .modal-overlay.open { opacity: 1; pointer-events: all; }
+
+    .modal-inner {
+      width: 88%;
+      max-width: 1100px;
+      position: relative;
+    }
+
+    .modal-topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 0.8rem;
+    }
+
+    .modal-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.1rem;
+      color: var(--text);
+      font-weight: 400;
+    }
+
+    .modal-close {
+      background: none;
+      border: 1px solid var(--line);
+      color: var(--dim);
+      font-family: 'DM Mono', monospace;
+      font-size: 0.58rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      cursor: none;
+      padding: 0.4rem 1rem;
+      transition: all 0.2s;
+    }
+
+    .modal-close:hover { border-color: var(--accent); color: var(--accent); }
+
+    .modal-video {
+      position: relative;
+      padding-top: 56.25%;
+    }
+
+    .modal-video iframe {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      border-top: 1px solid var(--line);
+      padding: 1.5rem 3rem;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    footer p {
+      font-size: 0.58rem;
+      letter-spacing: 0.2em;
+      color: rgba(255,255,255,0.15);
+      text-transform: uppercase;
+    }
+
+    /* Fade in */
+    .fade-in {
+      opacity: 0;
+      animation: fadeUp 1s ease forwards;
+    }
+    .fade-in:nth-child(1) { animation-delay: 0.1s; }
+    .fade-in:nth-child(2) { animation-delay: 0.3s; }
+    .fade-in:nth-child(3) { animation-delay: 0.5s; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 900px) {
+      header { padding: 1.2rem 1.5rem; }
+      .hero { padding: 0 1.5rem 3rem; }
+      .work-section { padding: 0 1.5rem 4rem; }
+      .video-grid,
+      .video-grid.all-view,
+      .video-grid.feed-view { columns: 2; grid-template-columns: repeat(2, 1fr); }
+      .video-grid.identity-view { grid-template-columns: 1fr; }
+      footer { padding: 1.5rem; flex-direction: column; gap: 0.3rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="cursor" id="cursor"></div>
+  <div class="cursor-ring" id="cursorRing"></div>
+
+  <header>
+    <a class="logo" href="#">
+      <svg width="34" height="34" viewBox="0 0 34 34">
+        <circle cx="17" cy="17" r="15.5"/>
+        <text x="17" y="18" text-anchor="middle" dominant-baseline="middle" font-size="13" font-weight="300">W</text>
+      </svg>
+      <span class="logo-name">Woodland / David Bartin</span>
+    </a>
+    <nav>
+      <a href="#" id="aboutLink">About</a>
+    </nav>
+  </header>
+
+  <!-- HERO -->
+  <section class="hero">
+    <p class="hero-counter fade-in">— 001</p>
+    <h1 class="fade-in">Editing &<br/><em>Motion<br/>Design</em></h1>
+    <div class="hero-meta fade-in">
+      <p>Brooklyn, NY</p>
+      <div class="scroll-indicator">
+        <span>Scroll</span>
+        <div class="scroll-line"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- WORK -->
+  <section class="work-section">
+    <div class="work-header">
+      <span class="work-title">Selected Work</span>
+      <div class="tabs" role="tablist">
+        <button class="tab-btn active" data-cat="all">All</button>
+        <button class="tab-btn" data-cat="campaigns">Campaigns</button>
+        <button class="tab-btn" data-cat="documentary">Documentary</button>
+        <button class="tab-btn" data-cat="feed">Feed</button>
+        <button class="tab-btn" data-cat="identity">Identity</button>
+      </div>
+    </div>
+
+    <div class="video-grid all-view" id="videoGrid">
+
+      <div class="video-card visible" data-cat="campaigns" data-vimeo="1117763382" data-title="J.Crew - Adrien Brody">
+        <div class="video-thumb"><div class="thumb-bg"></div><img class="thumb-img" src="" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 0.4s;"><div class="thumb-overlay"></div><div class="thumb-scan"></div><div class="card-inner"><p class="card-tag">Campaigns</p><h3 class="card-title">J.Crew — Adrien Brody</h3></div><div class="play-btn"><svg width="12" height="14" viewBox="0 0 12 14" fill="none"><path d="M1 1l10 6-10 6V1z" fill="#e8c87a"/></svg></div><span class="card-num">01</span></div>
+      </div>
+
+      <div class="video-card visible" data-cat="campaigns" data-vimeo="850968833" data-title="Sony - Spiderman BTS">
+        <div class="video-thumb"><div class="thumb-bg"></div><img class="thumb-img" src="" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 0.4s;"><div class="thumb-overlay"></div><div class="thumb-scan"></div><div class="card-inner"><p class="card-tag">Campaigns</p><h3 class="card-title">Sony - Spiderman BTS</h3></div><div class="play-btn"><svg width="12" height="14" viewBox="0 0 12 14" fill="none"><path d="M1 1l10 6-10 6V1z" fill="#e8c87a"/></svg></div><span class="card-num">02</span></div>
+      </div>
+
+      <div class="video-card visible" data-cat="campaigns" data-vimeo="750118082" data-title="J.Crew - Fall">
+        <div class="video-thumb"><div class="thumb-bg"></div><img class="thumb-img" src="" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 0.4s;"><div class="thumb-overlay"></div><div class="thumb-scan"></div><div class="card-inner"><p class="card-tag">Campaigns</p><h3 class="card-title">J.Crew - Fall</h3></div><div class="play-btn"><svg width="12" height="14" viewBox="0 0 12 14" fill="none"><path d="M1 1l10 6-10 6V1z" fill="#e8c87a"/></svg></div><span class="card-num">03</span></div>
+      </div>
+
+      <div class="video-card visible" data-cat="campaigns" data-vimeo="691977677" data-title="Chief - Leader">
+        <div class="video-thumb"><div class="thumb-bg"></div><img class="thumb-img" src="" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 0.4s;"><div class="thumb-overlay"></div><div class="thumb-scan"></div><div class="card-inner"><p class="card-tag">Campaigns</p><h3 class="card-title">Chief - Leader</h3></div><div class="play-btn"><svg width="12" height="14" viewBox="0 0 12 14" fill="none"><path d="M1 1l10 6-10 6V1z" fill="#e8c87a"/></svg></div><span class="card-num">04</span></div>
+      </div>
+
+      <div class="video-card visible" data-cat="campaigns" data-vimeo="1002110088" data-title="J.Crew - Winter">
+        <div class="video-thumb"><div class="thumb-bg"></div><img class="thumb-img" src="" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 0.4s;"><div class="thumb-overlay"></div><div class="thumb-scan"></div><div class="card-inner"><p class="card-tag">Campaigns</p><h3 class="card-title">Campaign</h3></div><div class="play-btn"><svg width="12" height="14" viewBox="0 0 12 14" fill="none"><path d="M1 1l10 6-10 6V1z" fill="#e8c87a"/></svg></div><span class="card-num">05</span></div>
+      </div>
+
+      <div class="video-card visible" data-cat="campaigns" data-vimeo="691980332" data-title="Let Alone - Get Your Data Back">
+        <div class="video-thumb"><div class="thumb-bg"></div><img class="thumb-img" src="" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 0.4s;"><div class="thumb-overlay"></div><div class="thumb-scan"></div><div class="card-inner"><p class="card-tag">Campaigns</p><h3 class="card-title">Let Alone - Get Your Data Back</h3></div><div class="play-btn"><svg width="12" height="14" viewBox="0 0 12 14" fill="none"><path d="M1 1l10 6-10 6V1z" fill="#e8c87a"/></svg></div><span class="card-num">06</span></div>
+      </div>
+
+      <div class="video-card visible" data-cat="campaigns" data-vimeo="95621071" data-title="Coppertone - Triathlon">
+        <div class="video-thumb"><div class="thumb-bg"></div><img class="thumb-img" src="" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 0.4s;"><div class="thumb-overlay"></div><div class="thumb-scan"></div><div class="card-inner"><p class="card-tag">Campaigns</p><h3 class="card-title">Coppertone - Triathlon</h3></div><div class="play-btn"><svg width="12" height="14" viewBox="0 0 12 14" fill="none"><path d="M1 1l10 6-10 6V1z" fill="#e8c87a"/></svg></div><span class="card-num">07</span></div>
+      </div>
+
+      <div class="video-card visible" data-cat="campaigns" data-vimeo="237926403" data-title="Burton - No Bad Trips">
+        <div class="video-thumb"><div class="thumb-bg"></div><img class="thumb-img" src="" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 0.4s;"><div class="thumb-overlay"></div><div class="thumb-scan"></div><div class="card-inner"><p class="card-tag">Campaigns</p><h3 class="card-title">Burton - No Bad Trips</h3></div><div class="play-btn"><svg width="12" height="14" viewBox="0 0 12 14" fill="none"><path d="M1 1l10 6-10 6V1z" fill="#e8c87a"/></svg></div><span class="card-num">08</span></div>
+      </div>
+
+      <div class="video-card visible" data-cat="campaigns" data-vimeo="95621009" data-title="Coppertone - Bridesmaid">
+        <div class="video-thumb"><div class="thumb-bg"></div><img class="thumb-img" src="" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 0.4s;"><div class="thumb-overlay"></div><div class="thumb-scan"></div><div class="card-inner"><p class="card-tag">Campaigns</p><h3 class="card-title">Coppertone - Bridesmaid</h3></div><div class="play-btn"><svg width="12" height="14" viewBox="0 0 12 14" fill="none"><path d="M1 1l10 6-10 6V1z" fill="#e8c87a"/></svg></div><span class="card-num">09</span></div>
+      </div>
+
+      <div class="video-card visible" data-cat="campaigns" data-vimeo="89981931" data-title="Dos Equis - Olympics">
+        <div class="video-thumb"><div class="thumb-bg"></div><img class="thumb-img" src="" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 0.4s;"><div class="thumb-overlay"></div><div class="thumb-scan"></div><div class="card-inner"><p class="card-tag">Campaigns</p><h3 class="card-title">Dos Equis - Olympics</h3></div><div class="play-btn"><svg width="12" height="14" viewBox="0 0 12 14" fill="none"><path d="M1 1l10 6-10 6V1z" fill="#e8c87a"/></svg></div><span class="card-num">10</span></div>
+      </div>
+
+      <div class="video-card visible" data-cat="campaigns" data-vimeo="51282675" data-title="Walmart - Notebooks">
+        <div class="video-thumb"><div class="thumb-bg"></div><img class="thumb-img" src="" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 0.4s;"><div class="thumb-overlay"></div><div class="thumb-scan"></div><div class="card-inner"><p class="card-tag">Campaigns</p><h3 class="card-title">Walmart - Notebooks</h3></div><div class="play-btn"><svg width="12" height="14" viewBox="0 0 12 14" fill="none"><path d="M1 1l10 6-10 6V1z" fill="#e8c87a"/></svg></div><span class="card-num">11</span></div>
+      </div>
+
+      <div class="video-card visible" data-cat="campaigns" data-vimeo="458683071" data-title="Census - Be Counted">
+        <div class="video-thumb"><div class="thumb-bg"></div><img class="thumb-img" src="" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 0.4s;"><div class="thumb-overlay"></div><div class="thumb-scan"></div><div class="card-inner"><p class="card-tag">Campaigns</p><h3 class="card-title">Census - Be Counted</h3></div><div class="play-btn"><svg width="12" height="14" viewBox="0 0 12 14" fill="none"><path d="M1 1l10 6-10 6V1z" fill="#e8c87a"/></svg></div><span class="card-num">12</span></div>
+      </div>
+
+      <div class="video-card visible" data-cat="documentary" data-vimeo="237936164" data-title="Chuck & Jim">
+        <div class="video-thumb"><div class="thumb-bg"></div><img class="thumb-img" src="" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 0.4s;"><div class="thumb-overlay"></div><div class="thumb-scan"></div><div class="card-inner"><p class="card-tag">Documentary</p><h3 class="card-title">Chuck & Jim</h3></div><div class="play-btn"><svg width="12" height="14" viewBox="0 0 12 14" fill="none"><path d="M1 1l10 6-10 6V1z" fill="#e8c87a"/></svg></div></div>
+      </div>
+
+      <div class="video-card visible" data-cat="documentary" data-vimeo="237935270" data-title="Randy">
+        <div class="video-thumb"><div class="thumb-bg"></div><img class="thumb-img" src="" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 0.4s;"><div class="thumb-overlay"></div><div class="thumb-scan"></div><div class="card-inner"><p class="card-tag">Documentary</p><h3 class="card-title">Randy</h3></div><div class="play-btn"><svg width="12" height="14" viewBox="0 0 12 14" fill="none"><path d="M1 1l10 6-10 6V1z" fill="#e8c87a"/></svg></div></div>
+      </div>
+
+      <div class="video-card visible" data-cat="documentary" data-vimeo="152379772" data-title="Graffiti: The Bronx">
+        <div class="video-thumb"><div class="thumb-bg"></div><img class="thumb-img" src="" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 0.4s;"><div class="thumb-overlay"></div><div class="thumb-scan"></div><div class="card-inner"><p class="card-tag">Documentary</p><h3 class="card-title">Graffiti: The Bronx</h3></div><div class="play-btn"><svg width="12" height="14" viewBox="0 0 12 14" fill="none"><path d="M1 1l10 6-10 6V1z" fill="#e8c87a"/></svg></div></div>
+      </div>
+
+      <div class="video-card visible" data-cat="documentary" data-vimeo="575136905" data-title="Lebanon - The Blast">
+        <div class="video-thumb"><div class="thumb-bg"></div><img class="thumb-img" src="" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 0.4s;"><div class="thumb-overlay"></div><div class="thumb-scan"></div><div class="card-inner"><p class="card-tag">Documentary</p><h3 class="card-title">Lebanon - The Blast</h3></div><div class="play-btn"><svg width="12" height="14" viewBox="0 0 12 14" fill="none"><path d="M1 1l10 6-10 6V1z" fill="#e8c87a"/></svg></div></div>
+      </div>
+
+      <div class="video-card visible" data-cat="documentary" data-vimeo="711779651" data-title="Knox Robinson">
+        <div class="video-thumb"><div class="thumb-bg"></div><img class="thumb-img" src="" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 0.4s;"><div class="thumb-overlay"></div><div class="thumb-scan"></div><div class="card-inner"><p class="card-tag">Documentary</p><h3 class="card-title">Knox Robinson</h3></div><div class="play-btn"><svg width="12" height="14" viewBox="0 0 12 14" fill="none"><path d="M1 1l10 6-10 6V1z" fill="#e8c87a"/></svg></div></div>
+      </div>
+
+      <div class="video-card visible" data-cat="feed" data-vimeo="1167805640" data-title="J.Crew - Coats">
+        <div class="video-thumb"><div class="thumb-bg"></div><img class="thumb-img" src="" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 0.4s;"><div class="thumb-overlay"></div><div class="thumb-scan"></div><div class="card-inner"><p class="card-tag">Feed</p><h3 class="card-title">J.Crew - Coats</h3></div><div class="play-btn"><svg width="12" height="14" viewBox="0 0 12 14" fill="none"><path d="M1 1l10 6-10 6V1z" fill="#e8c87a"/></svg></div></div>
+      </div>
+
+      <div class="video-card visible" data-cat="feed" data-vimeo="430480047" data-title="Star Wars: Dagobah">
+        <div class="video-thumb"><div class="thumb-bg"></div><img class="thumb-img" src="" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 0.4s;"><div class="thumb-overlay"></div><div class="thumb-scan"></div><div class="card-inner"><p class="card-tag">Feed</p><h3 class="card-title">Star Wars: Dagobah</h3></div><div class="play-btn"><svg width="12" height="14" viewBox="0 0 12 14" fill="none"><path d="M1 1l10 6-10 6V1z" fill="#e8c87a"/></svg></div></div>
+      </div>
+
+      <div class="video-card visible" data-cat="feed" data-vimeo="371791851" data-title="Oscars - Best Picture">
+        <div class="video-thumb"><div class="thumb-bg"></div><img class="thumb-img" src="" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 0.4s;"><div class="thumb-overlay"></div><div class="thumb-scan"></div><div class="card-inner"><p class="card-tag">Feed</p><h3 class="card-title">Oscars - Best Picture</h3></div><div class="play-btn"><svg width="12" height="14" viewBox="0 0 12 14" fill="none"><path d="M1 1l10 6-10 6V1z" fill="#e8c87a"/></svg></div></div>
+      </div>
+
+      <div class="video-card visible" data-cat="feed" data-vimeo="341936688" data-title="Star Wars: A Hero's Journey">
+        <div class="video-thumb"><div class="thumb-bg"></div><img class="thumb-img" src="" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 0.4s;"><div class="thumb-overlay"></div><div class="thumb-scan"></div><div class="card-inner"><p class="card-tag">Feed</p><h3 class="card-title">Star Wars: A Hero's Journey</h3></div><div class="play-btn"><svg width="12" height="14" viewBox="0 0 12 14" fill="none"><path d="M1 1l10 6-10 6V1z" fill="#e8c87a"/></svg></div></div>
+      </div>
+
+      <div class="video-card visible" data-cat="feed" data-vimeo="193623541" data-title="A.K.A. Wiz Khalifa">
+        <div class="video-thumb"><div class="thumb-bg"></div><img class="thumb-img" src="" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 0.4s;"><div class="thumb-overlay"></div><div class="thumb-scan"></div><div class="card-inner"><p class="card-tag">Feed</p><h3 class="card-title">A.K.A. Wiz Khalifa</h3></div><div class="play-btn"><svg width="12" height="14" viewBox="0 0 12 14" fill="none"><path d="M1 1l10 6-10 6V1z" fill="#e8c87a"/></svg></div></div>
+      </div>
+
+      <div class="video-card visible" data-cat="feed" data-vimeo="193623519" data-title="A.K.A. Pusha T">
+        <div class="video-thumb"><div class="thumb-bg"></div><img class="thumb-img" src="" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 0.4s;"><div class="thumb-overlay"></div><div class="thumb-scan"></div><div class="card-inner"><p class="card-tag">Feed</p><h3 class="card-title">A.K.A. Pusha T</h3></div><div class="play-btn"><svg width="12" height="14" viewBox="0 0 12 14" fill="none"><path d="M1 1l10 6-10 6V1z" fill="#e8c87a"/></svg></div></div>
+      </div>
+
+      <div class="video-card visible" data-cat="feed" data-vimeo="1167807181" data-title="J.Crew - Summer">
+        <div class="video-thumb"><div class="thumb-bg"></div><img class="thumb-img" src="" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 0.4s;"><div class="thumb-overlay"></div><div class="thumb-scan"></div><div class="card-inner"><p class="card-tag">Feed</p><h3 class="card-title">J.Crew - Summer</h3></div><div class="play-btn"><svg width="12" height="14" viewBox="0 0 12 14" fill="none"><path d="M1 1l10 6-10 6V1z" fill="#e8c87a"/></svg></div></div>
+      </div>
+
+      <div class="video-card visible" data-cat="feed" data-vimeo="424879320" data-title="Cabin Fever">
+        <div class="video-thumb"><div class="thumb-bg"></div><img class="thumb-img" src="" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 0.4s;"><div class="thumb-overlay"></div><div class="thumb-scan"></div><div class="card-inner"><p class="card-tag">Feed</p><h3 class="card-title">Cabin Fever</h3></div><div class="play-btn"><svg width="12" height="14" viewBox="0 0 12 14" fill="none"><path d="M1 1l10 6-10 6V1z" fill="#e8c87a"/></svg></div></div>
+      </div>
+
+      <div class="video-card visible" data-cat="identity" data-vimeo="1117765355" data-title="Sensible Weather">
+        <div class="video-thumb"><div class="thumb-bg"></div><img class="thumb-img" src="" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 0.4s;"><div class="thumb-overlay"></div><div class="thumb-scan"></div><div class="card-inner"><p class="card-tag">Identity</p><h3 class="card-title">Sensible Weather</h3></div><div class="play-btn"><svg width="12" height="14" viewBox="0 0 12 14" fill="none"><path d="M1 1l10 6-10 6V1z" fill="#e8c87a"/></svg></div></div>
+      </div>
+
+      <div class="video-card visible" data-cat="identity" data-vimeo="575130417" data-title="Nissan Z">
+        <div class="video-thumb"><div class="thumb-bg"></div><img class="thumb-img" src="" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 0.4s;"><div class="thumb-overlay"></div><div class="thumb-scan"></div><div class="card-inner"><p class="card-tag">Identity</p><h3 class="card-title">Nissan Z</h3></div><div class="play-btn"><svg width="12" height="14" viewBox="0 0 12 14" fill="none"><path d="M1 1l10 6-10 6V1z" fill="#e8c87a"/></svg></div></div>
+      </div>
+
+      <div class="video-card visible" data-cat="identity" data-vimeo="575131087" data-title="Raytheon">
+        <div class="video-thumb"><div class="thumb-bg"></div><img class="thumb-img" src="" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 0.4s;"><div class="thumb-overlay"></div><div class="thumb-scan"></div><div class="card-inner"><p class="card-tag">Identity</p><h3 class="card-title">Raytheon</h3></div><div class="play-btn"><svg width="12" height="14" viewBox="0 0 12 14" fill="none"><path d="M1 1l10 6-10 6V1z" fill="#e8c87a"/></svg></div></div>
+      </div>
+
+      <div class="video-card visible" data-cat="identity" data-vimeo="89983163" data-title="DPT">
+        <div class="video-thumb"><div class="thumb-bg"></div><img class="thumb-img" src="" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 0.4s;"><div class="thumb-overlay"></div><div class="thumb-scan"></div><div class="card-inner"><p class="card-tag">Identity</p><h3 class="card-title">DPT</h3></div><div class="play-btn"><svg width="12" height="14" viewBox="0 0 12 14" fill="none"><path d="M1 1l10 6-10 6V1z" fill="#e8c87a"/></svg></div></div>
+      </div>
+
+      <div class="video-card visible" data-cat="identity" data-vimeo="458686154" data-title="NBA">
+        <div class="video-thumb"><div class="thumb-bg"></div><img class="thumb-img" src="" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 0.4s;"><div class="thumb-overlay"></div><div class="thumb-scan"></div><div class="card-inner"><p class="card-tag">Identity</p><h3 class="card-title">NBA</h3></div><div class="play-btn"><svg width="12" height="14" viewBox="0 0 12 14" fill="none"><path d="M1 1l10 6-10 6V1z" fill="#e8c87a"/></svg></div></div>
+      </div>
+
+      <div class="video-card visible" data-cat="identity" data-vimeo="373446924" data-title="Vitamin Shoppe">
+        <div class="video-thumb"><div class="thumb-bg"></div><img class="thumb-img" src="" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 0.4s;"><div class="thumb-overlay"></div><div class="thumb-scan"></div><div class="card-inner"><p class="card-tag">Identity</p><h3 class="card-title">Vitamin Shoppe</h3></div><div class="play-btn"><svg width="12" height="14" viewBox="0 0 12 14" fill="none"><path d="M1 1l10 6-10 6V1z" fill="#e8c87a"/></svg></div></div>
+      </div>
+
+      <div class="video-card visible" data-cat="identity" data-vimeo="252944827" data-title="Woodland">
+        <div class="video-thumb"><div class="thumb-bg"></div><img class="thumb-img" src="" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 0.4s;"><div class="thumb-overlay"></div><div class="thumb-scan"></div><div class="card-inner"><p class="card-tag">Identity</p><h3 class="card-title">Woodland</h3></div><div class="play-btn"><svg width="12" height="14" viewBox="0 0 12 14" fill="none"><path d="M1 1l10 6-10 6V1z" fill="#e8c87a"/></svg></div></div>
+      </div>
+
+      <div class="video-card visible" data-cat="identity" data-vimeo="424878899" data-title="Bread & Flour">
+        <div class="video-thumb"><div class="thumb-bg"></div><img class="thumb-img" src="" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 0.4s;"><div class="thumb-overlay"></div><div class="thumb-scan"></div><div class="card-inner"><p class="card-tag">Identity</p><h3 class="card-title">Bread & Flour</h3></div><div class="play-btn"><svg width="12" height="14" viewBox="0 0 12 14" fill="none"><path d="M1 1l10 6-10 6V1z" fill="#e8c87a"/></svg></div></div>
+      </div>
+
+      <div class="video-card visible" data-cat="identity" data-vimeo="691987911" data-title="Caribou">
+        <div class="video-thumb"><div class="thumb-bg"></div><img class="thumb-img" src="" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 0.4s;"><div class="thumb-overlay"></div><div class="thumb-scan"></div><div class="card-inner"><p class="card-tag">Identity</p><h3 class="card-title">Caribou</h3></div><div class="play-btn"><svg width="12" height="14" viewBox="0 0 12 14" fill="none"><path d="M1 1l10 6-10 6V1z" fill="#e8c87a"/></svg></div></div>
+      </div>
+
+      <div class="video-card visible" data-cat="documentary" data-vimeo="1168178594" data-title="OceanX - The Red Sea">
+        <div class="video-thumb"><div class="thumb-bg"></div><img class="thumb-img" src="" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 0.4s;"><div class="thumb-overlay"></div><div class="thumb-scan"></div><div class="card-inner"><p class="card-tag">Documentary</p><h3 class="card-title">OceanX - The Red Sea</h3></div><div class="play-btn"><svg width="12" height="14" viewBox="0 0 12 14" fill="none"><path d="M1 1l10 6-10 6V1z" fill="#e8c87a"/></svg></div></div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Modal -->
+  <div class="modal-overlay" id="modal">
+    <div class="modal-inner">
+      <div class="modal-topbar">
+        <span class="modal-title" id="modalTitle"></span>
+        <button class="modal-close" id="modalClose">✕ &nbsp;Close</button>
+      </div>
+      <div class="modal-video">
+        <iframe id="modalFrame" src="" allow="autoplay; fullscreen; picture-in-picture; web-share" allowfullscreen playsinline webkit-playsinline></iframe>
+      </div>
+    </div>
+  </div>
+
+  <!-- About Overlay -->
+  <div id="aboutOverlay" style="position:fixed;inset:0;background:rgba(3,2,1,0.97);z-index:2000;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.4s ease;">
+    <div style="position:relative;max-width:520px;width:90%;padding:2rem;">
+      <button id="aboutClose" style="position:absolute;top:-2.5rem;right:0;background:none;border:1px solid rgba(255,255,255,0.07);color:rgba(255,255,255,0.3);font-family:'DM Mono',monospace;font-size:0.58rem;letter-spacing:0.2em;text-transform:uppercase;cursor:none;padding:0.4rem 1rem;transition:all 0.2s;">✕ &nbsp;Close</button>
+      <p style="font-size:0.55rem;letter-spacing:0.35em;text-transform:uppercase;color:var(--accent);margin-bottom:2rem;font-family:'DM Mono',monospace;">About</p>
+      <h2 style="font-family:'DM Serif Display',serif;font-weight:400;font-size:3rem;color:var(--text);line-height:1;margin-bottom:0.5rem;">David Bartin</h2>
+      <a href="mailto:david@woodlandinc.com" style="font-family:'DM Mono',monospace;font-weight:300;font-size:0.75rem;letter-spacing:0.1em;color:var(--accent);text-decoration:none;display:block;margin-bottom:2rem;">david@woodlandinc.com</a>
+      <p style="font-family:'DM Mono',monospace;font-weight:300;font-size:0.8rem;line-height:2;color:rgba(255,255,255,0.35);letter-spacing:0.04em;border-left:1px solid rgba(255,255,255,0.07);padding-left:1.2rem;">Brooklyn, NY based editor and motion graphics designer who doesn't enjoy writing about himself but does enjoy promptly replying to emails.</p>
+    </div>
+  </div>
+
+  <footer>
+    <p>© 2025 Woodland</p>
+    <p>Brooklyn, NY</p>
+  </footer>
+
+  <script>
+    // Cursor
+    const cursor = document.getElementById('cursor');
+    const ring = document.getElementById('cursorRing');
+    let mx = 0, my = 0, rx = 0, ry = 0;
+    document.addEventListener('mousemove', e => {
+      mx = e.clientX; my = e.clientY;
+      cursor.style.left = mx + 'px'; cursor.style.top = my + 'px';
+    });
+    (function animRing() {
+      rx += (mx - rx) * 0.1; ry += (my - ry) * 0.1;
+      ring.style.left = rx + 'px'; ring.style.top = ry + 'px';
+      requestAnimationFrame(animRing);
+    })();
+    document.querySelectorAll('a, button, .video-card').forEach(el => {
+      el.addEventListener('mouseenter', () => document.body.classList.add('hovering'));
+      el.addEventListener('mouseleave', () => document.body.classList.remove('hovering'));
+    });
+
+    // Thumbnails + feed aspect ratio
+    document.querySelectorAll('.video-card').forEach(async card => {
+      const id = card.dataset.vimeo;
+      const img = card.querySelector('.thumb-img');
+      const thumb = card.querySelector('.video-thumb');
+      if (!id || !img) return;
+      try {
+        const res = await fetch(`https://vimeo.com/api/oembed.json?url=https://vimeo.com/${id}&width=640`, {mode: 'cors'});
+        const data = await res.json();
+        if (data.thumbnail_url) {
+          // Use https version of thumbnail
+          const thumbUrl = data.thumbnail_url.replace('http://', 'https://');
+          img.src = thumbUrl;
+          img.onload = () => { img.style.opacity = 1; };
+          img.onerror = () => {
+            // Fallback: try vimeo thumbnail CDN directly
+            img.src = `https://vumbnail.com/${id}.jpg`;
+            img.onload = () => { img.style.opacity = 1; };
+          };
+        }
+        if (card.dataset.cat === 'feed' && data.width && data.height) {
+          thumb.style.paddingTop = (data.height / data.width * 100) + '%';
+        }
+      } catch(e) {
+        // Fallback thumbnail service
+        if (img) {
+          img.src = `https://vumbnail.com/${id}.jpg`;
+          img.onload = () => { img.style.opacity = 1; };
+        }
+        if (card.dataset.cat === 'feed') {
+          card.querySelector('.video-thumb').style.paddingTop = '100%';
+        }
+      }
+    });
+
+    // Tabs
+    const tabs = document.querySelectorAll('.tab-btn');
+    const grid = document.getElementById('videoGrid');
+
+    function shuffleGrid() {
+      const cards = [...grid.querySelectorAll('.video-card')];
+      cards.sort(() => Math.random() - 0.5);
+      cards.forEach(c => grid.appendChild(c));
+    }
+
+    grid.classList.add('all-view');
+
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        tabs.forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        const cat = tab.dataset.cat;
+        grid.classList.toggle('all-view', cat === 'all');
+        grid.classList.toggle('feed-view', cat === 'feed');
+        grid.classList.toggle('identity-view', cat === 'identity');
+        grid.classList.toggle('documentary-view', cat === 'documentary');
+        if (cat === 'all') shuffleGrid();
+        grid.querySelectorAll('.video-card').forEach(card => {
+          card.classList.toggle('visible', cat === 'all' || card.dataset.cat === cat);
+        });
+      });
+    });
+
+    // Modal
+    const modal = document.getElementById('modal');
+    const modalFrame = document.getElementById('modalFrame');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalClose = document.getElementById('modalClose');
+
+    document.querySelectorAll('.video-card').forEach(card => {
+      card.addEventListener('click', () => {
+        modalFrame.src = `https://player.vimeo.com/video/${card.dataset.vimeo}?autoplay=1&muted=0&color=e8c87a&title=0&byline=0&portrait=0&playsinline=1&dnt=1`;
+        modalTitle.textContent = card.dataset.title;
+        modal.classList.add('open');
+        document.body.style.overflow = 'hidden';
+      });
+    });
+
+    function closeModal() {
+      modal.classList.remove('open');
+      setTimeout(() => { modalFrame.src = ''; }, 400);
+      document.body.style.overflow = '';
+    }
+    modalClose.addEventListener('click', closeModal);
+    modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeModal(); closeAbout(); } });
+
+    // About
+    const aboutOverlay = document.getElementById('aboutOverlay');
+    const aboutLink = document.getElementById('aboutLink');
+    const aboutClose = document.getElementById('aboutClose');
+
+    aboutLink.addEventListener('click', e => {
+      e.preventDefault();
+      aboutOverlay.style.opacity = 1;
+      aboutOverlay.style.pointerEvents = 'all';
+      document.body.style.overflow = 'hidden';
+    });
+
+    function closeAbout() {
+      aboutOverlay.style.opacity = 0;
+      aboutOverlay.style.pointerEvents = 'none';
+      document.body.style.overflow = '';
+    }
+    aboutClose.addEventListener('click', closeAbout);
+    aboutOverlay.addEventListener('click', e => { if (e.target === aboutOverlay) closeAbout(); });
+
+    [aboutLink, aboutClose, aboutOverlay].forEach(el => {
+      if (el) el.addEventListener('mouseenter', () => document.body.classList.add('hovering'));
+      if (el) el.addEventListener('mouseleave', () => document.body.classList.remove('hovering'));
+    });
+  </script>
+</body>
+</html>
