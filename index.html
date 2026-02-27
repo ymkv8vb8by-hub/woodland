@@ -889,37 +889,28 @@
     }
 
     // Thumbnails + feed aspect ratio
-    document.querySelectorAll('.video-card').forEach(async card => {
+    document.querySelectorAll('.video-card').forEach(card => {
       const id = card.dataset.vimeo;
       const img = card.querySelector('.thumb-img');
-      const thumb = card.querySelector('.video-thumb');
       if (!id || !img) return;
-      try {
-        const res = await fetch(`https://vimeo.com/api/oembed.json?url=https://vimeo.com/${id}&width=640`, {mode: 'cors'});
-        const data = await res.json();
-        if (data.thumbnail_url) {
-          // Use https version of thumbnail
-          const thumbUrl = data.thumbnail_url.replace('http://', 'https://');
-          img.src = thumbUrl;
-          img.onload = () => { img.style.opacity = 1; };
-          img.onerror = () => {
-            // Fallback: try vimeo thumbnail CDN directly
-            img.src = `https://vumbnail.com/${id}.jpg`;
-            img.onload = () => { img.style.opacity = 1; };
-          };
-        }
-        if (card.dataset.cat === 'feed' && data.width && data.height) {
-          thumb.style.paddingTop = (data.height / data.width * 100) + '%';
-        }
-      } catch(e) {
-        // Fallback thumbnail service
-        if (img) {
-          img.src = `https://vumbnail.com/${id}.jpg`;
-          img.onload = () => { img.style.opacity = 1; };
-        }
-        if (card.dataset.cat === 'feed') {
-          card.querySelector('.video-thumb').style.paddingTop = '100%';
-        }
+
+      // Use vumbnail directly — works on all browsers including Safari
+      img.src = `https://vumbnail.com/${id}.jpg`;
+      img.onload = () => { img.style.opacity = 1; };
+
+      // For feed cards, fetch aspect ratio separately
+      if (card.dataset.cat === 'feed') {
+        const thumb = card.querySelector('.video-thumb');
+        fetch(`https://vimeo.com/api/oembed.json?url=https://vimeo.com/${id}&width=640`, {mode: 'cors'})
+          .then(r => r.json())
+          .then(data => {
+            if (data.width && data.height) {
+              thumb.style.paddingTop = (data.height / data.width * 100) + '%';
+            }
+          })
+          .catch(() => {
+            thumb.style.paddingTop = '100%';
+          });
       }
     });
 
