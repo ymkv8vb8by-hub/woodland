@@ -233,10 +233,10 @@
     }
 
     .work-title {
-      font-size: 0.6rem;
-      letter-spacing: 0.3em;
+      font-size: 0.8rem;
+      letter-spacing: 0.2em;
       text-transform: uppercase;
-      color: var(--dim);
+      color: var(--text);
     }
 
     /* Tabs */
@@ -249,11 +249,11 @@
       cursor: none;
       font-family: 'DM Mono', monospace;
       font-weight: 300;
-      font-size: 0.6rem;
-      letter-spacing: 0.2em;
+      font-size: 0.9rem;
+      letter-spacing: 0.15em;
       text-transform: uppercase;
-      color: var(--dim);
-      padding: 0.4rem 1.2rem;
+      color: rgba(255,255,255,0.55);
+      padding: 0.5rem 1.4rem;
       transition: color 0.2s, background 0.2s;
     }
 
@@ -373,8 +373,8 @@
       text-transform: uppercase;
       color: var(--accent);
       margin-bottom: 0.3rem;
-      opacity: 0;
-      transform: translateY(4px);
+      opacity: 1;
+      transform: translateY(0);
       transition: opacity 0.3s, transform 0.3s;
     }
 
@@ -527,8 +527,124 @@
       .video-grid,
       .video-grid.all-view,
       .video-grid.feed-view { columns: 2; grid-template-columns: repeat(2, 1fr); }
-      .video-grid.identity-view { grid-template-columns: 1fr; }
+      .video-grid.identity-view,
+      .video-grid.documentary-view { grid-template-columns: repeat(2, 1fr); }
       footer { padding: 1.5rem; flex-direction: column; gap: 0.3rem; }
+    }
+
+    @media (max-width: 600px) {
+      /* Hide custom cursor on touch devices */
+      .cursor, .cursor-ring { display: none; }
+      * { cursor: auto !important; }
+      html { cursor: auto !important; }
+      body { cursor: auto !important; }
+
+      /* Header */
+      header {
+        padding: 1rem 1.2rem;
+      }
+      .logo-name {
+        font-size: 0.62rem;
+        letter-spacing: 0.2em;
+      }
+      nav a {
+        font-size: 0.62rem;
+      }
+
+      /* Hero */
+      .hero {
+        padding: 0 1.2rem 2.5rem;
+        min-height: 100svh;
+      }
+      .hero h1 {
+        font-size: clamp(3.8rem, 18vw, 6rem);
+        line-height: 0.88;
+      }
+      .hero-meta {
+        margin-top: 2rem;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1.5rem;
+      }
+      .scroll-indicator { display: none; }
+
+      /* Work section */
+      .work-section { padding: 0 1.2rem 3rem; }
+
+      .work-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+        padding: 1.5rem 0;
+      }
+
+      /* Tabs — scrollable row */
+      .tabs {
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        gap: 0;
+      }
+      .tabs::-webkit-scrollbar { display: none; }
+      .tab-btn {
+        font-size: 0.8rem;
+        padding: 0.5rem 1.1rem;
+        white-space: nowrap;
+        flex-shrink: 0;
+      }
+
+      /* Grid — single column on mobile */
+      .video-grid,
+      .video-grid.all-view,
+      .video-grid.feed-view {
+        columns: 1;
+        grid-template-columns: 1fr;
+      }
+      .video-grid.identity-view,
+      .video-grid.documentary-view {
+        grid-template-columns: 1fr;
+      }
+
+      /* Always show play button & card info on mobile (no hover) */
+      .play-btn {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+      }
+      .card-tag {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      .card-title {
+        transform: translateY(0);
+      }
+
+      /* Modal */
+      .modal-inner {
+        width: 96%;
+      }
+      .modal-topbar {
+        flex-direction: row;
+        gap: 0.5rem;
+      }
+      .modal-title {
+        font-size: 0.9rem;
+      }
+
+      /* About overlay */
+      #aboutOverlay > div {
+        padding: 1.5rem !important;
+      }
+      #aboutOverlay h2 {
+        font-size: 2.2rem !important;
+      }
+
+      /* Footer */
+      footer {
+        padding: 1.2rem;
+        flex-direction: column;
+        gap: 0.3rem;
+      }
     }
   </style>
 </head>
@@ -740,7 +856,7 @@
       <button id="aboutClose" style="position:absolute;top:-2.5rem;right:0;background:none;border:1px solid rgba(255,255,255,0.07);color:rgba(255,255,255,0.3);font-family:'DM Mono',monospace;font-size:0.58rem;letter-spacing:0.2em;text-transform:uppercase;cursor:none;padding:0.4rem 1rem;transition:all 0.2s;">✕ &nbsp;Close</button>
       <p style="font-size:0.55rem;letter-spacing:0.35em;text-transform:uppercase;color:var(--accent);margin-bottom:2rem;font-family:'DM Mono',monospace;">About</p>
       <h2 style="font-family:'DM Serif Display',serif;font-weight:400;font-size:3rem;color:var(--text);line-height:1;margin-bottom:0.5rem;">David Bartin</h2>
-      <a href="mailto:david@woodlandinc.com" style="font-family:'DM Mono',monospace;font-weight:300;font-size:0.75rem;letter-spacing:0.1em;color:var(--accent);text-decoration:none;display:block;margin-bottom:2rem;">david@woodlandinc.com</a>
+      <a href="/cdn-cgi/l/email-protection#fd999c8b9499bd8a929299919c939994939ed39e9290" style="font-family:'DM Mono',monospace;font-weight:300;font-size:0.75rem;letter-spacing:0.1em;color:var(--accent);text-decoration:none;display:block;margin-bottom:2rem;"><span class="__cf_email__" data-cfemail="cca8adbaa5a88cbba3a3a8a0ada2a8a5a2afe2afa3a1">[email&#160;protected]</span></a>
       <p style="font-family:'DM Mono',monospace;font-weight:300;font-size:0.8rem;line-height:2;color:rgba(255,255,255,0.35);letter-spacing:0.04em;border-left:1px solid rgba(255,255,255,0.07);padding-left:1.2rem;">Brooklyn, NY based editor and motion graphics designer who doesn't enjoy writing about himself but does enjoy promptly replying to emails.</p>
     </div>
   </div>
@@ -750,24 +866,27 @@
     <p>Brooklyn, NY</p>
   </footer>
 
-  <script>
-    // Cursor
+  <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+    // Cursor — desktop only
+    const isTouchDevice = window.matchMedia('(hover: none) and (pointer: coarse)').matches;
     const cursor = document.getElementById('cursor');
     const ring = document.getElementById('cursorRing');
-    let mx = 0, my = 0, rx = 0, ry = 0;
-    document.addEventListener('mousemove', e => {
-      mx = e.clientX; my = e.clientY;
-      cursor.style.left = mx + 'px'; cursor.style.top = my + 'px';
-    });
-    (function animRing() {
-      rx += (mx - rx) * 0.1; ry += (my - ry) * 0.1;
-      ring.style.left = rx + 'px'; ring.style.top = ry + 'px';
-      requestAnimationFrame(animRing);
-    })();
-    document.querySelectorAll('a, button, .video-card').forEach(el => {
-      el.addEventListener('mouseenter', () => document.body.classList.add('hovering'));
-      el.addEventListener('mouseleave', () => document.body.classList.remove('hovering'));
-    });
+    if (!isTouchDevice) {
+      let mx = 0, my = 0, rx = 0, ry = 0;
+      document.addEventListener('mousemove', e => {
+        mx = e.clientX; my = e.clientY;
+        cursor.style.left = mx + 'px'; cursor.style.top = my + 'px';
+      });
+      (function animRing() {
+        rx += (mx - rx) * 0.1; ry += (my - ry) * 0.1;
+        ring.style.left = rx + 'px'; ring.style.top = ry + 'px';
+        requestAnimationFrame(animRing);
+      })();
+      document.querySelectorAll('a, button, .video-card').forEach(el => {
+        el.addEventListener('mouseenter', () => document.body.classList.add('hovering'));
+        el.addEventListener('mouseleave', () => document.body.classList.remove('hovering'));
+      });
+    }
 
     // Thumbnails + feed aspect ratio
     document.querySelectorAll('.video-card').forEach(async card => {
@@ -876,10 +995,4 @@
     aboutClose.addEventListener('click', closeAbout);
     aboutOverlay.addEventListener('click', e => { if (e.target === aboutOverlay) closeAbout(); });
 
-    [aboutLink, aboutClose, aboutOverlay].forEach(el => {
-      if (el) el.addEventListener('mouseenter', () => document.body.classList.add('hovering'));
-      if (el) el.addEventListener('mouseleave', () => document.body.classList.remove('hovering'));
-    });
-  </script>
-</body>
-</html>
+    [aboutLink, aboutClose, aboutOverlay]
