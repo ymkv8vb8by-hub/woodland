@@ -821,7 +821,7 @@
       <button id="aboutClose" style="position:absolute;top:-2.5rem;right:0;background:none;border:1px solid rgba(255,255,255,0.07);color:rgba(255,255,255,0.3);font-family:'DM Mono',monospace;font-size:0.58rem;letter-spacing:0.2em;text-transform:uppercase;cursor:none;padding:0.4rem 1rem;transition:all 0.2s;">✕ &nbsp;Close</button>
       <p style="font-size:0.55rem;letter-spacing:0.35em;text-transform:uppercase;color:var(--accent);margin-bottom:2rem;font-family:'DM Mono',monospace;">About</p>
       <h2 style="font-family:'DM Serif Display',serif;font-weight:400;font-size:3rem;color:var(--text);line-height:1;margin-bottom:0.5rem;">David Bartin</h2>
-      <a href="mailto:david@woodlandinc.com" style="font-family:'DM Mono',monospace;font-weight:300;font-size:0.75rem;letter-spacing:0.1em;color:var(--accent);text-decoration:none;display:block;margin-bottom:2rem;">david@woodlandinc.com</a>
+      <a href="/cdn-cgi/l/email-protection#b7d3d6c1ded3f7c0d8d8d3dbd6d9d3ded9d499d4d8da" style="font-family:'DM Mono',monospace;font-weight:300;font-size:0.75rem;letter-spacing:0.1em;color:var(--accent);text-decoration:none;display:block;margin-bottom:2rem;"><span class="__cf_email__" data-cfemail="8befeafde2efcbfce4e4efe7eae5efe2e5e8a5e8e4e6">[email&#160;protected]</span></a>
       <p style="font-family:'DM Mono',monospace;font-weight:300;font-size:0.8rem;line-height:2;color:rgba(255,255,255,0.35);letter-spacing:0.04em;border-left:1px solid rgba(255,255,255,0.07);padding-left:1.2rem;">Brooklyn, NY based editor and motion graphics designer who doesn't enjoy writing about himself but does enjoy promptly replying to emails.</p>
     </div>
   </div>
@@ -831,7 +831,7 @@
     <p>Brooklyn, NY</p>
   </footer>
 
-  <script>
+  <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
     
 
     // Thumbnails + feed aspect ratio
@@ -840,24 +840,25 @@
       const img = card.querySelector('.thumb-img');
       if (!id || !img) return;
 
-      // Use local worker proxy — avoids Safari CORS/tracking issues
-      img.src = `/thumb/${id}.jpg`;
-      img.onload = () => { img.style.opacity = 1; };
-
-      // For feed cards, fetch aspect ratio separately
-      if (card.dataset.cat === 'feed') {
-        const thumb = card.querySelector('.video-thumb');
-        fetch(`https://vimeo.com/api/oembed.json?url=https://vimeo.com/${id}&width=640`, {mode: 'cors'})
-          .then(r => r.json())
-          .then(data => {
-            if (data.width && data.height) {
-              thumb.style.paddingTop = (data.height / data.width * 100) + '%';
-            }
-          })
-          .catch(() => {
+      // Fetch thumbnail + aspect ratio directly from Vimeo oEmbed (client-side, no proxy needed)
+      fetch(`https://vimeo.com/api/oembed.json?url=https://vimeo.com/${id}&width=640`)
+        .then(r => r.json())
+        .then(data => {
+          if (data.thumbnail_url) {
+            img.src = data.thumbnail_url.replace('http://', 'https://');
+            img.onload = () => { img.style.opacity = 1; };
+          }
+          if (card.dataset.cat === 'feed' && data.width && data.height) {
+            const thumb = card.querySelector('.video-thumb');
+            thumb.style.paddingTop = (data.height / data.width * 100) + '%';
+          }
+        })
+        .catch(() => {
+          if (card.dataset.cat === 'feed') {
+            const thumb = card.querySelector('.video-thumb');
             thumb.style.paddingTop = '100%';
-          });
-      }
+          }
+        });
     });
 
     // Tabs
@@ -926,10 +927,4 @@
 
     function closeAbout() {
       aboutOverlay.style.opacity = 0;
-      aboutOverlay.style.pointerEvents = 'none';
-      document.body.style.overflow = '';
-    }
-    aboutClose.addEventListener('click', closeAbout);
-    aboutOverlay.addEventListener('click', e => { if (e.target === aboutOverlay) closeAbout(); });
-
-    [aboutLink, aboutClose, aboutOverlay]
+      aboutOverlay.style.pointerEvents = 'no
