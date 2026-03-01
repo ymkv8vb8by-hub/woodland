@@ -927,4 +927,12 @@
 
     function closeAbout() {
       aboutOverlay.style.opacity = 0;
-      aboutOverlay.style.pointerEvents = 'no
+      aboutOverlay.style.pointerEvents = 'none';
+      document.body.style.overflow = '';
+    }
+    aboutClose.addEventListener('click', closeAbout);
+    aboutOverlay.addEventListener('click', e => { if (e.target === aboutOverlay) closeAbout(); });
+
+  </script>
+</body>
+</html>
